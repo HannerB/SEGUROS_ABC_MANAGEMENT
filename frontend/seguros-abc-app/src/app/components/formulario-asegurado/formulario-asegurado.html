@@ -1,0 +1,185 @@
+<div class="formulario-container">
+  <h2>{{ modoEdicion ? 'Editar Asegurado' : 'Nuevo Asegurado' }}</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <form [formGroup]="aseguradoForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <!-- Número de Identificación -->
+      <div class="form-group full-width">
+        <label for="numeroIdentificacion">
+          Número de Identificación <span class="required">*</span>
+        </label>
+        <input
+          type="number"
+          id="numeroIdentificacion"
+          formControlName="numeroIdentificacion"
+          [class.error]="hasError('numeroIdentificacion')"
+        />
+        <span class="error-message" *ngIf="hasError('numeroIdentificacion')">
+          {{ getError('numeroIdentificacion') }}
+        </span>
+      </div>
+
+      <!-- Primer Nombre -->
+      <div class="form-group">
+        <label for="primerNombre">
+          Primer Nombre <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="primerNombre"
+          formControlName="primerNombre"
+          [class.error]="hasError('primerNombre')"
+        />
+        <span class="error-message" *ngIf="hasError('primerNombre')">
+          {{ getError('primerNombre') }}
+        </span>
+      </div>
+
+      <!-- Segundo Nombre -->
+      <div class="form-group">
+        <label for="segundoNombre">Segundo Nombre</label>
+        <input
+          type="text"
+          id="segundoNombre"
+          formControlName="segundoNombre"
+          [class.error]="hasError('segundoNombre')"
+        />
+        <span class="error-message" *ngIf="hasError('segundoNombre')">
+          {{ getError('segundoNombre') }}
+        </span>
+      </div>
+
+      <!-- Primer Apellido -->
+      <div class="form-group">
+        <label for="primerApellido">
+          Primer Apellido <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="primerApellido"
+          formControlName="primerApellido"
+          [class.error]="hasError('primerApellido')"
+        />
+        <span class="error-message" *ngIf="hasError('primerApellido')">
+          {{ getError('primerApellido') }}
+        </span>
+      </div>
+
+      <!-- Segundo Apellido -->
+      <div class="form-group">
+        <label for="segundoApellido">
+          Segundo Apellido <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="segundoApellido"
+          formControlName="segundoApellido"
+          [class.error]="hasError('segundoApellido')"
+        />
+        <span class="error-message" *ngIf="hasError('segundoApellido')">
+          {{ getError('segundoApellido') }}
+        </span>
+      </div>
+
+      <!-- Teléfono de Contacto -->
+      <div class="form-group">
+        <label for="telefonoContacto">
+          Teléfono de Contacto <span class="required">*</span>
+        </label>
+        <input
+          type="tel"
+          id="telefonoContacto"
+          formControlName="telefonoContacto"
+          [class.error]="hasError('telefonoContacto')"
+          placeholder="+57 300 1234567"
+        />
+        <span class="error-message" *ngIf="hasError('telefonoContacto')">
+          {{ getError('telefonoContacto') }}
+        </span>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">
+          Email <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          [class.error]="hasError('email')"
+          placeholder="ejemplo@email.com"
+        />
+        <span class="error-message" *ngIf="hasError('email')">
+          {{ getError('email') }}
+        </span>
+      </div>
+
+      <!-- Fecha de Nacimiento -->
+      <div class="form-group">
+        <label for="fechaNacimiento">
+          Fecha de Nacimiento <span class="required">*</span>
+        </label>
+        <input
+          type="date"
+          id="fechaNacimiento"
+          formControlName="fechaNacimiento"
+          [class.error]="hasError('fechaNacimiento')"
+        />
+        <span class="error-message" *ngIf="hasError('fechaNacimiento')">
+          {{ getError('fechaNacimiento') }}
+        </span>
+      </div>
+
+      <!-- Valor Estimado del Seguro -->
+      <div class="form-group">
+        <label for="valorEstimadoSeguro">
+          Valor Estimado del Seguro <span class="required">*</span>
+        </label>
+        <input
+          type="number"
+          id="valorEstimadoSeguro"
+          formControlName="valorEstimadoSeguro"
+          [class.error]="hasError('valorEstimadoSeguro')"
+          placeholder="50000000"
+          step="0.01"
+        />
+        <span class="error-message" *ngIf="hasError('valorEstimadoSeguro')">
+          {{ getError('valorEstimadoSeguro') }}
+        </span>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="form-group full-width">
+        <label for="observaciones">Observaciones</label>
+        <textarea
+          id="observaciones"
+          formControlName="observaciones"
+          [class.error]="hasError('observaciones')"
+          rows="4"
+          placeholder="Información adicional del asegurado..."
+        ></textarea>
+        <span class="error-message" *ngIf="hasError('observaciones')">
+          {{ getError('observaciones') }}
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="loading">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        {{ loading ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
+      </button>
+    </div>
+  </form>
+</div>

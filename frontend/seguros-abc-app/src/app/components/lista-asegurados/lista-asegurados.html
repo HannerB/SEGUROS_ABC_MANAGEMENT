@@ -1,0 +1,147 @@
+<div class="container">
+  <h1>Gestión de Asegurados</h1>
+
+  <!-- Mensajes de alerta -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Barra de herramientas -->
+  <div class="toolbar">
+    <!-- Búsqueda -->
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="busquedaTexto"
+        (keyup.enter)="buscar()"
+        placeholder="Buscar por número de identificación..."
+        class="search-input"
+      />
+      <button (click)="buscar()" class="btn btn-secondary" [disabled]="buscando">
+        {{ buscando ? 'Buscando...' : 'Buscar' }}
+      </button>
+      <button *ngIf="busquedaTexto" (click)="limpiarBusqueda()" class="btn btn-secondary">
+        Limpiar
+      </button>
+    </div>
+
+    <!-- Botón nuevo asegurado -->
+    <button (click)="abrirFormularioNuevo()" class="btn btn-primary">
+      + Nuevo Asegurado
+    </button>
+  </div>
+
+  <!-- Tabla de asegurados -->
+  <div class="table-container">
+    <div *ngIf="loading" class="loading">Cargando asegurados...</div>
+
+    <table *ngIf="!loading && aseguradosFiltrados.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>No. Identificación</th>
+          <th>Nombre Completo</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Fecha Nacimiento</th>
+          <th>Valor Seguro</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let asegurado of aseguradosFiltrados">
+          <td>{{ asegurado.numeroIdentificacion }}</td>
+          <td>{{ getNombreCompleto(asegurado) }}</td>
+          <td>{{ asegurado.email }}</td>
+          <td>{{ asegurado.telefonoContacto }}</td>
+          <td>{{ formatearFecha(asegurado.fechaNacimiento) }}</td>
+          <td>{{ formatearMoneda(asegurado.valorEstimadoSeguro) }}</td>
+          <td class="actions">
+            <button
+              (click)="editarAsegurado(asegurado)"
+              class="btn btn-small btn-edit"
+              title="Editar"
+            >
+              Editar
+            </button>
+            <button
+              (click)="confirmarEliminar(asegurado)"
+              class="btn btn-small btn-delete"
+              title="Eliminar"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!loading && aseguradosFiltrados.length === 0" class="empty-state">
+      <p>No se encontraron asegurados</p>
+      <button (click)="abrirFormularioNuevo()" class="btn btn-primary">
+        Agregar primer asegurado
+      </button>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div *ngIf="paginacion && !busquedaTexto" class="pagination">
+    <button
+      (click)="cambiarPagina(pageNumber - 1)"
+      [disabled]="!paginacion.hasPreviousPage"
+      class="btn btn-secondary"
+    >
+      Anterior
+    </button>
+
+    <span class="pagination-info">
+      Página {{ paginacion.pageNumber }} de {{ paginacion.totalPages }}
+      ({{ paginacion.totalRecords }} registros)
+    </span>
+
+    <button
+      (click)="cambiarPagina(pageNumber + 1)"
+      [disabled]="!paginacion.hasNextPage"
+      class="btn btn-secondary"
+    >
+      Siguiente
+    </button>
+  </div>
+
+  <!-- Modal del formulario -->
+  <div *ngIf="mostrarFormulario" class="modal">
+    <div class="modal-content">
+      <button (click)="cerrarFormulario()" class="close-modal">&times;</button>
+      <app-formulario-asegurado
+        [aseguradoEditar]="aseguradoEditar"
+        (onGuardar)="onGuardarAsegurado()"
+        (onCancelar)="cerrarFormulario()"
+      ></app-formulario-asegurado>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación de eliminación -->
+  <div *ngIf="mostrarModalEliminar" class="modal">
+    <div class="modal-content modal-small">
+      <h3>Confirmar Eliminación</h3>
+      <p *ngIf="aseguradoEliminar">
+        ¿Está seguro que desea eliminar el asegurado
+        <strong>{{ getNombreCompleto(aseguradoEliminar) }}</strong>
+        con número de identificación
+        <strong>{{ aseguradoEliminar.numeroIdentificacion }}</strong>?
+      </p>
+      <p class="warning">Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button (click)="cancelarEliminar()" class="btn btn-secondary">
+          Cancelar
+        </button>
+        <button (click)="eliminarAsegurado()" class="btn btn-danger">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
