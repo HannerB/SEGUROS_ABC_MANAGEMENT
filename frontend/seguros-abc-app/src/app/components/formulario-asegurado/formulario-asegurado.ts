@@ -158,14 +158,14 @@ export class FormularioAsegurado implements OnInit {
   // Métodos helper para el template
   getError(campo: string): string {
     const control = this.aseguradoForm.get(campo);
-    if (!control || !control.errors || !control.touched) return '';
+    if (!control || !control.errors || !(control.touched || control.dirty)) return '';
 
     const errors = control.errors;
 
     if (errors['required']) return 'Este campo es requerido';
     if (errors['minlength']) return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
     if (errors['maxlength']) return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
-    if (errors['email']) return 'Email inválido';
+    if (errors['email']) return 'Formato de email inválido';
     if (errors['min']) return `El valor mínimo es ${errors['min'].min}`;
 
     return '';
@@ -173,6 +173,6 @@ export class FormularioAsegurado implements OnInit {
 
   hasError(campo: string): boolean {
     const control = this.aseguradoForm.get(campo);
-    return !!(control && control.invalid && control.touched);
+    return !!(control && control.invalid && (control.touched || control.dirty));
   }
 }
