@@ -17,13 +17,16 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure CORS
+// Configure CORS - Origins can be configured via appsettings.json
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:4200", "https://localhost:4200" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp",
-        builder =>
+        policy =>
         {
-            builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
+            policy.WithOrigins(allowedOrigins)
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
@@ -35,12 +38,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger enabled for all environments
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // CORS debe ir primero, antes de otros middlewares
 app.UseCors("AllowAngularApp");
