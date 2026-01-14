@@ -27,7 +27,7 @@ namespace SegurosABC.API.Data
                     .IsUnique();
 
                 entity.Property(e => e.FechaCreacion)
-                    .HasDefaultValueSql("GETDATE()");
+                    .HasDefaultValueSql("NOW()");
             });
         }
     }
