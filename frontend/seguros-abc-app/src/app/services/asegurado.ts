@@ -26,6 +26,9 @@ export class AseguradoService {
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
 
+    const url = `${this.apiUrl}?${params.toString()}`;
+    console.log('Llamando a:', url);
+
     return this.http.get<PaginatedResponse<Asegurado>>(this.apiUrl, { params });
   }
 
