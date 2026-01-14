@@ -38,9 +38,12 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Swagger enabled for all environments
-app.UseSwagger();
-app.UseSwaggerUI();
+// Swagger only enabled in Development environment
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // CORS debe ir primero, antes de otros middlewares
 app.UseCors("AllowAngularApp");

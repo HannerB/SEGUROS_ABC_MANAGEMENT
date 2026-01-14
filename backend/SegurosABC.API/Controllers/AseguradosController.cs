@@ -268,8 +268,7 @@ namespace SegurosABC.API.Controllers
                 _logger.LogError(ex, "Error al crear asegurado");
                 return StatusCode(500, new
                 {
-                    message = "Error interno del servidor al crear el asegurado. Por favor intenta de nuevo.",
-                    details = ex.Message
+                    message = "Error interno del servidor al crear el asegurado. Por favor intenta de nuevo."
                 });
             }
         }
