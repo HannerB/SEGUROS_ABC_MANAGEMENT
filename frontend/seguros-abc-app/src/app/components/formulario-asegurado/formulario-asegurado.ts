@@ -1,8 +1,33 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AseguradoService } from '../../services/asegurado';
 import { Asegurado } from '../../models/asegurado';
+
+// Validador personalizado para edad mínima
+function edadMinimaValidator(edadMinima: number) {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+
+    const fechaNacimiento = new Date(control.value);
+    const hoy = new Date();
+
+    let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+    const mesDiff = hoy.getMonth() - fechaNacimiento.getMonth();
+
+    // Ajustar si aún no ha cumplido años este año
+    if (mesDiff < 0 || (mesDiff === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+      edad--;
+    }
+
+    // Validar que la fecha no sea futura
+    if (fechaNacimiento > hoy) {
+      return { fechaFutura: true };
+    }
+
+    return edad >= edadMinima ? null : { edadMinima: { requerida: edadMinima, actual: edad } };
+  };
+}
 
 @Component({
   selector: 'app-formulario-asegurado',
@@ -56,7 +81,7 @@ export class FormularioAsegurado implements OnInit {
       segundoApellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       telefonoContacto: ['', [Validators.required, Validators.maxLength(20)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(200)]],
-      fechaNacimiento: ['', [Validators.required]],
+      fechaNacimiento: ['', [Validators.required, edadMinimaValidator(18)]],
       valorEstimadoSeguro: ['', [Validators.required, Validators.min(0.01)]],
       observaciones: ['', [Validators.maxLength(1000)]]
     });
@@ -220,6 +245,8 @@ export class FormularioAsegurado implements OnInit {
     if (errors['maxlength']) return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
     if (errors['email']) return 'Formato de email inválido';
     if (errors['min']) return `El valor mínimo es ${errors['min'].min}`;
+    if (errors['fechaFutura']) return 'La fecha de nacimiento no puede ser futura';
+    if (errors['edadMinima']) return `El asegurado debe ser mayor de ${errors['edadMinima'].requerida} años`;
 
     return '';
   }
