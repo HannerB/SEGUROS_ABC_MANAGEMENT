@@ -1,0 +1,20 @@
+<div *ngIf="visible" class="modal-overlay" (click)="onBackdropClick($event)">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ titulo }}</h3>
+      <button (click)="cancelar()" class="modal-close" type="button">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <app-formulario-asegurado
+        [aseguradoEditar]="aseguradoEditar"
+        (onGuardar)="guardar()"
+        (onCancelar)="cancelar()"
+      ></app-formulario-asegurado>
+    </div>
+  </div>
+</div>

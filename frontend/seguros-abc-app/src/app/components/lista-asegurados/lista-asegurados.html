@@ -1,152 +1,205 @@
-<div class="container">
-  <h1>Gestión de Asegurados</h1>
+<div class="page-container">
+  <!-- Header Section -->
+  <div class="page-content">
+    <div class="page-header">
+      <h1 class="page-title">Gestión de Asegurados</h1>
+      <p class="page-subtitle">Administra la información de los asegurados de Atlantic Quantum Innovations</p>
+    </div>
 
-  <!-- Toast Notification -->
-  <div *ngIf="showToast" class="toast-container">
-    <div class="toast" [class.toast-success]="successMessage" [class.toast-error]="errorMessage">
-      <div class="toast-icon">
-        <span *ngIf="successMessage">&#10004;</span>
-        <span *ngIf="errorMessage">&#10006;</span>
+    <!-- Toast Notification -->
+    <div *ngIf="showToast" class="toast-container">
+      <div class="toast" [class.toast-success]="successMessage" [class.toast-error]="errorMessage">
+        <div class="toast-icon">
+          <svg *ngIf="successMessage" class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <svg *ngIf="errorMessage" class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+        <div class="toast-message">
+          {{ successMessage || errorMessage }}
+        </div>
+        <button class="toast-close" (click)="closeToast()">
+          <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
-      <div class="toast-message">
-        {{ successMessage || errorMessage }}
+    </div>
+
+    <!-- Toolbar Card -->
+    <div class="card toolbar-card">
+      <div class="toolbar">
+        <!-- Search -->
+        <div class="search-wrapper">
+          <div class="search-input-container">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="busquedaTexto"
+              (keyup.enter)="buscar()"
+              placeholder="Buscar por número de identificación..."
+              class="search-input"
+            />
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <button (click)="buscar()" class="btn-secondary" [disabled]="buscando">
+            <svg *ngIf="!buscando" class="icon-xs btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <svg *ngIf="buscando" class="icon-xs btn-icon-left spinner" fill="none" viewBox="0 0 24 24">
+              <circle class="spinner-track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="spinner-head" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ buscando ? 'Buscando...' : 'Buscar' }}
+          </button>
+
+          <button *ngIf="busquedaTexto" (click)="limpiarBusqueda()" class="btn-ghost">
+            Limpiar
+          </button>
+
+          <button (click)="abrirFormularioNuevo()" class="btn-primary">
+            <svg class="icon-xs btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Nuevo Asegurado
+          </button>
+        </div>
       </div>
-      <button class="toast-close" (click)="closeToast()">&times;</button>
-    </div>
-  </div>
-
-  <!-- Barra de herramientas -->
-  <div class="toolbar">
-    <!-- Búsqueda -->
-    <div class="search-box">
-      <input
-        type="text"
-        [(ngModel)]="busquedaTexto"
-        (keyup.enter)="buscar()"
-        placeholder="Buscar por número de identificación..."
-        class="search-input"
-      />
-      <button (click)="buscar()" class="btn btn-secondary" [disabled]="buscando">
-        {{ buscando ? 'Buscando...' : 'Buscar' }}
-      </button>
-      <button *ngIf="busquedaTexto" (click)="limpiarBusqueda()" class="btn btn-secondary">
-        Limpiar
-      </button>
     </div>
 
-    <!-- Botón nuevo asegurado -->
-    <button (click)="abrirFormularioNuevo()" class="btn btn-primary">
-      + Nuevo Asegurado
-    </button>
-  </div>
+    <!-- Table Card -->
+    <div class="card table-card">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loading-icon-wrapper">
+          <svg class="icon-md spinner" fill="none" viewBox="0 0 24 24">
+            <circle class="spinner-track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="spinner-head" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+        <p class="loading-text">Cargando asegurados...</p>
+      </div>
 
-  <!-- Tabla de asegurados -->
-  <div class="table-container">
-    <div *ngIf="loading" class="loading">Cargando asegurados...</div>
+      <!-- Table -->
+      <div *ngIf="!loading && aseguradosFiltrados.length > 0" class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No. Identificación</th>
+              <th>Nombre Completo</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Fecha Nacimiento</th>
+              <th>Valor Seguro</th>
+              <th class="th-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let asegurado of aseguradosFiltrados; let i = index"
+                class="table-row"
+                [style.animation-delay]="(i * 0.05) + 's'">
+              <td>
+                <span class="id-badge">{{ asegurado.numeroIdentificacion }}</span>
+              </td>
+              <td>
+                <div class="user-cell">
+                  <div class="avatar">
+                    <span class="avatar-text">{{ getInitials(asegurado) }}</span>
+                  </div>
+                  <span class="user-name">{{ getNombreCompleto(asegurado) }}</span>
+                </div>
+              </td>
+              <td class="text-muted">{{ asegurado.email }}</td>
+              <td class="text-muted">{{ asegurado.telefonoContacto }}</td>
+              <td class="text-muted">{{ formatearFecha(asegurado.fechaNacimiento) }}</td>
+              <td class="text-bold">{{ formatearMoneda(asegurado.valorEstimadoSeguro) }}</td>
+              <td>
+                <div class="actions-cell">
+                  <button (click)="editarAsegurado(asegurado)" class="btn-icon btn-icon-edit" title="Editar">
+                    <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </button>
+                  <button (click)="confirmarEliminar(asegurado)" class="btn-icon btn-icon-delete" title="Eliminar">
+                    <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <table *ngIf="!loading && aseguradosFiltrados.length > 0" class="table">
-      <thead>
-        <tr>
-          <th>No. Identificación</th>
-          <th>Nombre Completo</th>
-          <th>Email</th>
-          <th>Teléfono</th>
-          <th>Fecha Nacimiento</th>
-          <th>Valor Seguro</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let asegurado of aseguradosFiltrados">
-          <td>{{ asegurado.numeroIdentificacion }}</td>
-          <td>{{ getNombreCompleto(asegurado) }}</td>
-          <td>{{ asegurado.email }}</td>
-          <td>{{ asegurado.telefonoContacto }}</td>
-          <td>{{ formatearFecha(asegurado.fechaNacimiento) }}</td>
-          <td>{{ formatearMoneda(asegurado.valorEstimadoSeguro) }}</td>
-          <td class="actions">
-            <button
-              (click)="editarAsegurado(asegurado)"
-              class="btn btn-small btn-edit"
-              title="Editar"
-            >
-              Editar
-            </button>
-            <button
-              (click)="confirmarEliminar(asegurado)"
-              class="btn btn-small btn-delete"
-              title="Eliminar"
-            >
-              Eliminar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div *ngIf="!loading && aseguradosFiltrados.length === 0" class="empty-state">
-      <p>No se encontraron asegurados</p>
-      <button (click)="abrirFormularioNuevo()" class="btn btn-primary">
-        Agregar primer asegurado
-      </button>
+      <!-- Empty State -->
+      <div *ngIf="!loading && aseguradosFiltrados.length === 0" class="empty-state">
+        <div class="empty-icon-wrapper">
+          <svg class="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+          </svg>
+        </div>
+        <h3 class="empty-title">No se encontraron asegurados</h3>
+        <p class="empty-text">Comienza agregando tu primer asegurado al sistema</p>
+        <button (click)="abrirFormularioNuevo()" class="btn-primary">
+          <svg class="icon-xs btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Agregar asegurado
+        </button>
+      </div>
     </div>
-  </div>
 
-  <!-- Paginación -->
-  <div *ngIf="paginacion && !busquedaTexto" class="pagination">
-    <button
-      (click)="cambiarPagina(pageNumber - 1)"
-      [disabled]="!paginacion.hasPreviousPage"
-      class="btn btn-secondary"
-    >
-      Anterior
-    </button>
-
-    <span class="pagination-info">
-      Página {{ paginacion.pageNumber }} de {{ paginacion.totalPages }}
-      ({{ paginacion.totalRecords }} registros)
-    </span>
-
-    <button
-      (click)="cambiarPagina(pageNumber + 1)"
-      [disabled]="!paginacion.hasNextPage"
-      class="btn btn-secondary"
-    >
-      Siguiente
-    </button>
+    <!-- Pagination -->
+    <div *ngIf="paginacion && !busquedaTexto" class="pagination">
+      <p class="pagination-info">
+        Mostrando <strong>{{ (paginacion.pageNumber - 1) * paginacion.pageSize + 1 }}</strong> a
+        <strong>{{ Math.min(paginacion.pageNumber * paginacion.pageSize, paginacion.totalRecords) }}</strong> de
+        <strong>{{ paginacion.totalRecords }}</strong> registros
+      </p>
+      <div class="pagination-buttons">
+        <button
+          (click)="cambiarPagina(pageNumber - 1)"
+          [disabled]="!paginacion.hasPreviousPage"
+          class="btn-pagination">
+          <svg class="icon-xs btn-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Anterior
+        </button>
+        <span class="pagination-current">{{ paginacion.pageNumber }} / {{ paginacion.totalPages }}</span>
+        <button
+          (click)="cambiarPagina(pageNumber + 1)"
+          [disabled]="!paginacion.hasNextPage"
+          class="btn-pagination">
+          Siguiente
+          <svg class="icon-xs btn-icon-right" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal del formulario -->
-  <div *ngIf="mostrarFormulario" class="modal">
-    <div class="modal-content">
-      <button (click)="cerrarFormulario()" class="close-modal">&times;</button>
-      <app-formulario-asegurado
-        [aseguradoEditar]="aseguradoEditar"
-        (onGuardar)="onGuardarAsegurado()"
-        (onCancelar)="cerrarFormulario()"
-      ></app-formulario-asegurado>
-    </div>
-  </div>
+  <app-modal-formulario
+    [visible]="mostrarFormulario"
+    [aseguradoEditar]="aseguradoEditar"
+    (onGuardar)="onGuardarAsegurado()"
+    (onCancelar)="cerrarFormulario()"
+  ></app-modal-formulario>
 
   <!-- Modal de confirmación de eliminación -->
-  <div *ngIf="mostrarModalEliminar" class="modal">
-    <div class="modal-content modal-small">
-      <h3>Confirmar Eliminación</h3>
-      <p *ngIf="aseguradoEliminar">
-        ¿Está seguro que desea eliminar el asegurado
-        <strong>{{ getNombreCompleto(aseguradoEliminar) }}</strong>
-        con número de identificación
-        <strong>{{ aseguradoEliminar.numeroIdentificacion }}</strong>?
-      </p>
-      <p class="warning">Esta acción no se puede deshacer.</p>
-      <div class="modal-actions">
-        <button (click)="cancelarEliminar()" class="btn btn-secondary">
-          Cancelar
-        </button>
-        <button (click)="eliminarAsegurado()" class="btn btn-danger">
-          Eliminar
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-modal-confirmacion
+    [visible]="mostrarModalEliminar"
+    [config]="modalEliminarConfig"
+    (onConfirmar)="eliminarAsegurado()"
+    (onCancelar)="cancelarEliminar()"
+  ></app-modal-confirmacion>
 </div>

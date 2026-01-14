@@ -7,12 +7,13 @@ import {
   UpdateAseguradoDto,
   PaginatedResponse
 } from '../models/asegurado';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AseguradoService {
-  private apiUrl = 'http://localhost:5056/api/asegurados';
+  private readonly apiUrl = `${environment.apiUrl}/asegurados`;
 
   constructor(private http: HttpClient) { }
 

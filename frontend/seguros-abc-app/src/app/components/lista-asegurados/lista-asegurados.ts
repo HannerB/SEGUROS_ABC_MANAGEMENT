@@ -3,16 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AseguradoService } from '../../services/asegurado';
 import { Asegurado, PaginatedResponse } from '../../models/asegurado';
-import { FormularioAsegurado } from '../formulario-asegurado/formulario-asegurado';
+import { ModalFormulario } from '../modal-formulario/modal-formulario';
+import { ModalConfirmacion, ModalConfirmacionConfig } from '../modal-confirmacion/modal-confirmacion';
 
 @Component({
   selector: 'app-lista-asegurados',
   standalone: true,
-  imports: [CommonModule, FormsModule, FormularioAsegurado],
+  imports: [CommonModule, FormsModule, ModalFormulario, ModalConfirmacion],
   templateUrl: './lista-asegurados.html',
   styleUrl: './lista-asegurados.css',
 })
 export class ListaAsegurados implements OnInit {
+  // Expose Math to template
+  Math = Math;
+
   asegurados: Asegurado[] = [];
   aseguradosFiltrados: Asegurado[] = [];
   paginacion?: PaginatedResponse<Asegurado>;
@@ -37,6 +41,13 @@ export class ListaAsegurados implements OnInit {
   // Modal de confirmación
   mostrarModalEliminar = false;
   aseguradoEliminar?: Asegurado;
+  modalEliminarConfig: ModalConfirmacionConfig = {
+    titulo: 'Confirmar Eliminación',
+    mensaje: '',
+    textoConfirmar: 'Eliminar',
+    textoCancelar: 'Cancelar',
+    tipo: 'danger'
+  };
 
   constructor(
     private aseguradoService: AseguradoService,
@@ -115,6 +126,7 @@ export class ListaAsegurados implements OnInit {
 
   confirmarEliminar(asegurado: Asegurado): void {
     this.aseguradoEliminar = asegurado;
+    this.modalEliminarConfig.mensaje = `¿Está seguro que desea eliminar el asegurado <strong>${this.getNombreCompleto(asegurado)}</strong> con número de identificación <strong>${asegurado.numeroIdentificacion}</strong>?`;
     this.mostrarModalEliminar = true;
   }
 
@@ -181,6 +193,12 @@ export class ListaAsegurados implements OnInit {
 
   getNombreCompleto(asegurado: Asegurado): string {
     return `${asegurado.primerNombre} ${asegurado.segundoNombre || ''} ${asegurado.primerApellido} ${asegurado.segundoApellido}`.trim();
+  }
+
+  getInitials(asegurado: Asegurado): string {
+    const first = asegurado.primerNombre?.charAt(0) || '';
+    const last = asegurado.primerApellido?.charAt(0) || '';
+    return (first + last).toUpperCase();
   }
 
   getPaginaArray(): number[] {
