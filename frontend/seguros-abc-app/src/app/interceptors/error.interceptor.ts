@@ -47,7 +47,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         url: req.url
       });
 
-      return throwError(() => new Error(errorMessage));
+      // Preservar la estructura del error para que los componentes puedan acceder a error.error.message
+      const enrichedError = {
+        ...error,
+        error: {
+          ...error.error,
+          message: errorMessage
+        }
+      };
+
+      return throwError(() => enrichedError);
     })
   );
 };
