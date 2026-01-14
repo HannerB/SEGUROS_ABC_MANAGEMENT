@@ -20,7 +20,6 @@ namespace SegurosABC.API.DTOs
         public string SegundoApellido { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El teléfono de contacto es requerido")]
-        [Phone(ErrorMessage = "El formato del teléfono no es válido")]
         [StringLength(20, ErrorMessage = "El teléfono no puede exceder 20 caracteres")]
         public string TelefonoContacto { get; set; } = string.Empty;
 

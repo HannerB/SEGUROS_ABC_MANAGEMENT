@@ -95,6 +95,9 @@ export class FormularioAsegurado implements OnInit {
   }
 
   crearAsegurado(data: any): void {
+    console.log('=== DATOS A ENVIAR ===', data);
+    console.log('Tipo de fechaNacimiento:', typeof data.fechaNacimiento, data.fechaNacimiento);
+
     this.aseguradoService.createAsegurado(data).subscribe({
       next: () => {
         this.successMessage = 'Asegurado creado exitosamente';
@@ -105,6 +108,8 @@ export class FormularioAsegurado implements OnInit {
         }, 1500);
       },
       error: (error) => {
+        console.error('Error al crear asegurado:', error);
+        console.error('Error completo:', JSON.stringify(error, null, 2));
         this.loading = false;
         this.errorMessage = this.getErrorMessage(error);
       }

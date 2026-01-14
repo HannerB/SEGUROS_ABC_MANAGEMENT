@@ -176,8 +176,15 @@ namespace SegurosABC.API.Controllers
         {
             try
             {
+                _logger.LogInformation("=== CREAR ASEGURADO ===");
+                _logger.LogInformation("NumeroIdentificacion: {Num}", createDto.NumeroIdentificacion);
+                _logger.LogInformation("Email: {Email}", createDto.Email);
+                _logger.LogInformation("FechaNacimiento: {Fecha}", createDto.FechaNacimiento);
+                _logger.LogInformation("FechaNacimiento.Kind: {Kind}", createDto.FechaNacimiento.Kind);
+
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogWarning("ModelState inválido: {Errors}", string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                     return BadRequest(ModelState);
                 }
 
