@@ -46,23 +46,17 @@ export class ListaAsegurados implements OnInit {
   cargarAsegurados(): void {
     this.loading = true;
     this.errorMessage = '';
-    console.log('Iniciando carga de asegurados...');
 
     this.aseguradoService.getAsegurados(this.pageNumber, this.pageSize).subscribe({
       next: (response) => {
-        console.log('Respuesta recibida:', response);
         this.paginacion = response;
         this.asegurados = response.data;
         this.aseguradosFiltrados = response.data;
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error completo:', error);
-        this.errorMessage = 'Error al cargar los asegurados: ' + (error.message || 'Error desconocido');
+        this.errorMessage = 'Error al cargar los asegurados. Por favor intenta de nuevo.';
         this.loading = false;
-      },
-      complete: () => {
-        console.log('Petición completada');
       }
     });
   }

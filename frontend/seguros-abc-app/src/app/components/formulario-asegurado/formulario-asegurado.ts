@@ -95,9 +95,6 @@ export class FormularioAsegurado implements OnInit {
   }
 
   crearAsegurado(data: any): void {
-    console.log('=== DATOS A ENVIAR ===', data);
-    console.log('Tipo de fechaNacimiento:', typeof data.fechaNacimiento, data.fechaNacimiento);
-
     this.aseguradoService.createAsegurado(data).subscribe({
       next: () => {
         this.successMessage = 'Asegurado creado exitosamente';
@@ -108,8 +105,6 @@ export class FormularioAsegurado implements OnInit {
         }, 1500);
       },
       error: (error) => {
-        console.error('Error al crear asegurado:', error);
-        console.error('Error completo:', JSON.stringify(error, null, 2));
         this.loading = false;
         this.errorMessage = this.getErrorMessage(error);
       }
@@ -147,17 +142,43 @@ export class FormularioAsegurado implements OnInit {
   }
 
   private getErrorMessage(error: any): string {
+    // Error con mensaje específico del backend
     if (error.error?.message) {
       return error.error.message;
     }
+
+    // Errores de validación de ModelState
     if (error.error?.errors) {
-      const errores = Object.values(error.error.errors).flat();
-      return errores.join(', ');
+      const errores: string[] = [];
+
+      // Si es un objeto con campos específicos
+      if (typeof error.error.errors === 'object') {
+        for (const campo in error.error.errors) {
+          const mensajesCampo = error.error.errors[campo];
+          if (Array.isArray(mensajesCampo)) {
+            errores.push(...mensajesCampo);
+          } else {
+            errores.push(mensajesCampo);
+          }
+        }
+      }
+
+      if (errores.length > 0) {
+        return 'Errores de validación:\n' + errores.map(e => '• ' + e).join('\n');
+      }
     }
-    if (error.status === 409) {
-      return 'El número de identificación o email ya está registrado';
+
+    // Errores por código de estado
+    switch (error.status) {
+      case 400:
+        return 'Datos inválidos. Por favor verifica todos los campos.';
+      case 409:
+        return 'El número de identificación o email ya está registrado.';
+      case 500:
+        return 'Error interno del servidor. Por favor intenta de nuevo.';
+      default:
+        return 'Ocurrió un error al guardar el asegurado. Por favor intenta de nuevo.';
     }
-    return 'Ocurrió un error al guardar el asegurado';
   }
 
   // Métodos helper para el template

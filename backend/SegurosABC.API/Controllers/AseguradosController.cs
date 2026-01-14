@@ -176,16 +176,22 @@ namespace SegurosABC.API.Controllers
         {
             try
             {
-                _logger.LogInformation("=== CREAR ASEGURADO ===");
-                _logger.LogInformation("NumeroIdentificacion: {Num}", createDto.NumeroIdentificacion);
-                _logger.LogInformation("Email: {Email}", createDto.Email);
-                _logger.LogInformation("FechaNacimiento: {Fecha}", createDto.FechaNacimiento);
-                _logger.LogInformation("FechaNacimiento.Kind: {Kind}", createDto.FechaNacimiento.Kind);
-
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning("ModelState inválido: {Errors}", string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
-                    return BadRequest(ModelState);
+                    var errores = ModelState
+                        .Where(x => x.Value?.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray() ?? Array.Empty<string>()
+                        );
+
+                    _logger.LogWarning("ModelState inválido: {Errors}", string.Join(", ", errores.SelectMany(e => e.Value)));
+
+                    return BadRequest(new
+                    {
+                        message = "Error de validación",
+                        errors = errores
+                    });
                 }
 
                 // Verificar si ya existe un asegurado con ese número de identificación
@@ -260,7 +266,11 @@ namespace SegurosABC.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear asegurado");
-                return StatusCode(500, "Error interno del servidor");
+                return StatusCode(500, new
+                {
+                    message = "Error interno del servidor al crear el asegurado. Por favor intenta de nuevo.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -277,7 +287,18 @@ namespace SegurosABC.API.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(ModelState);
+                    var errores = ModelState
+                        .Where(x => x.Value?.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray() ?? Array.Empty<string>()
+                        );
+
+                    return BadRequest(new
+                    {
+                        message = "Error de validación",
+                        errors = errores
+                    });
                 }
 
                 var asegurado = await _context.Asegurados.FindAsync(id);
