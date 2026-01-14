@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AseguradoService } from '../../services/asegurado';
@@ -20,6 +20,7 @@ export class ListaAsegurados implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  showToast = false;
 
   // Búsqueda
   busquedaTexto = '';
@@ -37,7 +38,10 @@ export class ListaAsegurados implements OnInit {
   mostrarModalEliminar = false;
   aseguradoEliminar?: Asegurado;
 
-  constructor(private aseguradoService: AseguradoService) { }
+  constructor(
+    private aseguradoService: AseguradoService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.cargarAsegurados();
@@ -53,10 +57,12 @@ export class ListaAsegurados implements OnInit {
         this.asegurados = response.data;
         this.aseguradosFiltrados = response.data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.errorMessage = 'Error al cargar los asegurados. Por favor intenta de nuevo.';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -64,6 +70,7 @@ export class ListaAsegurados implements OnInit {
   buscar(): void {
     if (!this.busquedaTexto.trim()) {
       this.aseguradosFiltrados = this.asegurados;
+      this.cdr.detectChanges();
       return;
     }
 
@@ -72,10 +79,12 @@ export class ListaAsegurados implements OnInit {
       next: (asegurados) => {
         this.aseguradosFiltrados = asegurados;
         this.buscando = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.errorMessage = 'Error al buscar asegurados';
         this.buscando = false;
+        this.cdr.detectChanges();
         console.error('Error:', error);
       }
     });
@@ -115,16 +124,22 @@ export class ListaAsegurados implements OnInit {
     this.aseguradoService.deleteAsegurado(this.aseguradoEliminar.numeroIdentificacion).subscribe({
       next: () => {
         this.successMessage = 'Asegurado eliminado exitosamente';
+        this.errorMessage = '';
+        this.showToast = true;
         this.mostrarModalEliminar = false;
         this.aseguradoEliminar = undefined;
+        this.cdr.detectChanges();
         this.cargarAsegurados();
-        setTimeout(() => this.successMessage = '', 3000);
+        setTimeout(() => this.closeToast(), 3000);
       },
       error: (error) => {
         this.errorMessage = 'Error al eliminar el asegurado';
+        this.successMessage = '';
+        this.showToast = true;
         this.mostrarModalEliminar = false;
+        this.cdr.detectChanges();
         console.error('Error:', error);
-        setTimeout(() => this.errorMessage = '', 3000);
+        setTimeout(() => this.closeToast(), 3000);
       }
     });
   }
@@ -142,9 +157,14 @@ export class ListaAsegurados implements OnInit {
   onGuardarAsegurado(): void {
     this.mostrarFormulario = false;
     this.aseguradoEditar = undefined;
-    this.successMessage = this.aseguradoEditar ? 'Asegurado actualizado exitosamente' : 'Asegurado creado exitosamente';
     this.cargarAsegurados();
-    setTimeout(() => this.successMessage = '', 3000);
+  }
+
+  closeToast(): void {
+    this.showToast = false;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.cdr.detectChanges();
   }
 
   formatearMoneda(valor: number): string {

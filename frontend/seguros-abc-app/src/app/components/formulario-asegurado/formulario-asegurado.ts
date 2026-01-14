@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AseguradoService } from '../../services/asegurado';
@@ -21,18 +21,26 @@ export class FormularioAsegurado implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
   modoEdicion = false;
+  showToast = false;
 
   constructor(
     private fb: FormBuilder,
-    private aseguradoService: AseguradoService
+    private aseguradoService: AseguradoService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.initForm();
-
+    // Establecer modo edición ANTES de inicializar el formulario
     if (this.aseguradoEditar) {
       this.modoEdicion = true;
+    }
+
+    this.initForm();
+
+    if (this.modoEdicion) {
       this.cargarDatosAsegurado();
+      // Deshabilitar el campo de identificación en modo edición
+      this.aseguradoForm.get('numeroIdentificacion')?.disable();
     }
   }
 
@@ -98,7 +106,10 @@ export class FormularioAsegurado implements OnInit {
     this.aseguradoService.createAsegurado(data).subscribe({
       next: () => {
         this.successMessage = 'Asegurado creado exitosamente';
+        this.errorMessage = '';
         this.loading = false;
+        this.showToast = true;
+        this.cdr.detectChanges();
         this.aseguradoForm.reset();
         setTimeout(() => {
           this.onGuardar.emit();
@@ -106,7 +117,10 @@ export class FormularioAsegurado implements OnInit {
       },
       error: (error) => {
         this.loading = false;
+        this.successMessage = '';
         this.errorMessage = this.getErrorMessage(error);
+        this.showToast = true;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -119,16 +133,29 @@ export class FormularioAsegurado implements OnInit {
     this.aseguradoService.updateAsegurado(id, updateData).subscribe({
       next: () => {
         this.successMessage = 'Asegurado actualizado exitosamente';
+        this.errorMessage = '';
         this.loading = false;
+        this.showToast = true;
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.onGuardar.emit();
         }, 1500);
       },
       error: (error) => {
         this.loading = false;
+        this.successMessage = '';
         this.errorMessage = this.getErrorMessage(error);
+        this.showToast = true;
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  closeToast(): void {
+    this.showToast = false;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.cdr.detectChanges();
   }
 
   cancelar(): void {

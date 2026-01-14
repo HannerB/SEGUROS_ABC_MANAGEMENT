@@ -1,13 +1,18 @@
 <div class="container">
   <h1>Gestión de Asegurados</h1>
 
-  <!-- Mensajes de alerta -->
-  <div *ngIf="errorMessage" class="alert alert-error">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="successMessage" class="alert alert-success">
-    {{ successMessage }}
+  <!-- Toast Notification -->
+  <div *ngIf="showToast" class="toast-container">
+    <div class="toast" [class.toast-success]="successMessage" [class.toast-error]="errorMessage">
+      <div class="toast-icon">
+        <span *ngIf="successMessage">&#10004;</span>
+        <span *ngIf="errorMessage">&#10006;</span>
+      </div>
+      <div class="toast-message">
+        {{ successMessage || errorMessage }}
+      </div>
+      <button class="toast-close" (click)="closeToast()">&times;</button>
+    </div>
   </div>
 
   <!-- Barra de herramientas -->
